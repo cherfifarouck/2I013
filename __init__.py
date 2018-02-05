@@ -1,18 +1,23 @@
-from strat import FonceurStrategy, RandomStrategy
+from strat import *
 from soccersimulator import SoccerTeam
 
-def get_team (nb_players):
-	myteam = SoccerTeam(name="Madrid")
-	if nb_players == 1:
-		myteam.add("Joueur " ,RandomStrategy())
-	if nb_players == 2:
-		myteam.add("Joueur 1", FonceurStrategy())
-		myteam.add("Joueur 2", RandomStrategy())
-	if nb_players == 4:
-		myteam.add("Joueur 1",RandomStrategy())
-		myteam.add("Joueur 2",FonceurStrategy())
-		myteam.add("Joueur 3",RandomStrategy())
-		myteam.add("Joueur 4",FonceurStrategy())
+def get_team (nb_team):
+	
+	if nb_team == 1:
+		myteam = SoccerTeam(name="Paris")
+		myteam.add("J1" ,FonceurEcole())
+	if nb_team == 2:
+		myteam = SoccerTeam(name="Lille")
+		myteam.add("J2", Fonceur3())
+	if nb_team == 3:
+		
+		myteam = SoccerTeam(name="Real")
+
+		myteam.add("J1", Attaque())
+	if nb_team == 4:
+		myteam = SoccerTeam(name="Canard")
+		myteam.add("J1",LigneDroite())
+		
 	return myteam 
 
 
