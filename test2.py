@@ -27,9 +27,9 @@ def run_strategie_L2():
 	
 
 #run_deux_joueurs()
-#run_strat_passe()
+run_strat_passe()
 #run_furtive_contre_normal()
-run_strategie_L2()
+#run_strategie_L2()
 
 #Creation d'une partie
 simu = Simulation(Barca,Real)
