@@ -13,7 +13,7 @@ def get_team (nb_players):
 		myteam.add("Joueur 2",FonceurStrategy())
 		myteam.add("Joueur 3",RandomStrategy())
 		myteam.add("Joueur 4",FonceurStrategy())
-		return myteam 
+	return myteam 
 
 
 def get_team_challenge(num):
