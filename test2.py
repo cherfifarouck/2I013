@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from soccersimulator import SoccerTeam,Simulation,show_simu
 from strat import *
 
@@ -27,8 +28,8 @@ def run_strategie_L2():
 	
 
 #run_deux_joueurs()
-run_strat_passe()
-#run_furtive_contre_normal()
+#run_strat_passe()
+run_furtive_contre_normal()
 #run_strategie_L2()
 
 #Creation d'une partie

@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 from soccersimulator import Strategy, SoccerAction,Vector2D
 from soccersimulator import settings
-from tools import *
+from .tools import *
 
 
 

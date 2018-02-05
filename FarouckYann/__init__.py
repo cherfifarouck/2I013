@@ -1,4 +1,5 @@
-from strat import *
+from __future__ import absolute_import
+from .strat import *
 from soccersimulator import SoccerTeam
 
 def get_team (nb_team):
@@ -8,7 +9,7 @@ def get_team (nb_team):
 		myteam.add("J1" ,FonceurEcole())
 	if nb_team == 2:
 		myteam = SoccerTeam(name="Lille")
-		myteam.add("J2", Fonceur3())
+		myteam.add("J2", Marquage())
 	if nb_team == 3:
 		
 		myteam = SoccerTeam(name="Real")
