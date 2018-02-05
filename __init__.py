@@ -3,7 +3,7 @@ from soccersimulator import SoccerTeam
 
 def get_team (nb_players):
 	myteam = SoccerTeam(name="Madrid")
-	if nbif nb_players == 1:
+	if nb_players == 1:
 		myteam.add("Joueur " ,RandomStrategy())
 	if nb_players == 2:
 		myteam.add("Joueur 1", FonceurStrategy())
