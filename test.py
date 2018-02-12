@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from soccersimulator import SoccerTeam,Simulation,show_simu
 from FarouckYann import get_team
+import os
 
 #simu = Simulation(get_team(1),get_team(2))
 #simu = Simulation(get_team(1),get_team(3))
