@@ -10,3 +10,8 @@ simu = Simulation(get_team(1),get_team(4))
 #simu = Simulation(get_team(3),get_team(4))
 
 show_simu(simu)
+
+
+"""Suprime les fichiers .pyc"""
+os.system("rm *.pyc")
+os.system("cd FarouckYann; rm *.pyc")
