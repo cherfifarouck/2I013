@@ -17,7 +17,7 @@ class RandomStrategy(Strategy):
     def __init__(self):
         Strategy.__init__(self,"Random")
     def compute_strategy(self,state,id_team,id_player):
-	return SoccerAction(Vector2D.create_random(-0.5,0.5),Vector2D.create_random(-0.5,0.5))
+        return SoccerAction(Vector2D.create_random(-0.5,0.5),Vector2D.create_random(-0.5,0.5))
 
 
 ## Strategie ligne droite
@@ -92,7 +92,7 @@ class Fonceur3(Strategy):
 		CIBLE = cible(id_team)
 		
 		if pres_de_la_balle(state, id_team, id_player):
-			return SoccerAction((CIBLE - PP).normalize() * maxP, (CIBLE - PB).normalize() * maxB)
+			return SoccerAction((CIBLE - PP).normalize() * maxP, (CIBLE - PB).normalize() * maxB/1.5)
 			
 		else:
 			return SoccerAction((PB + coefficient * state.ball.vitesse -PP ).normalize() *maxP, Vector2D(0., 0))
