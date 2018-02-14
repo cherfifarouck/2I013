@@ -14,10 +14,14 @@ class MetaState(object):
 	def __getattr__(self, attr):
 		return _state.__getattr__(attr)
 	
+	
 	def PP():
-		return state.player_state(id_team, id_player).position
+		return self._state.player_state(id_team, id_player).position
 	def PB():
-		return state.ball.position
+		return self._state.ball.position
+
+	def get_distance_to(vec2D):
+		return self.player_state(_id_team, _id_player).position.distance(vec2D)
 	def get_cible():
 		if self._id_team == 1:
 			return CENTRE_GOAL_DROIT
@@ -50,12 +54,7 @@ class MetaState(object):
 			
 		if liste_objets != []: return liste_objets[liste_distance.index(min(liste_distance))]
 		else: return None
-	def get_angle_vectoriel(v1, v2): #non oriente
-		if v1.x == 0 or v2.x == 0: 
-			sys.exit("Composante horizontale nulle")
-		if v1.dot(v2) == 0: return math.pi / 2
-		
-		else: return abs(v1.angle - v2.angle)%(2*math.pi)
+	
 	def face_au_ballon(CIBLE, angle_acceptant = math.pi / 12):
 		PB = self.PB()
 		PP = self.PP()
@@ -104,7 +103,9 @@ class MetaState(object):
 	def proximite_horizontale_but(distance):
 		PB = self.PB()
 		PP = self.PP()
-		if (PB.x > GW - distance and self._id_team == 1) or (PB.x < distance and self._id_team == 2)
+		if con_rendre_symetrique(PB.x > GW - distance, PB.x < distance):
+			return True
+		return False
 	def voie_libre(CIBLE, angle = math.pi/5): # renvoie boolean
 		PP = self.PP()
 		PB = self.PB()
@@ -137,7 +138,7 @@ class MetaState(object):
 			
 		#intercept inverse
 		else: return distance / K * settings.maxPlayerShoot
-def closest_to_ball(state, id_team, id_player):
+	def closest_to_ball(state, id_team, id_player):
 		PP = self.PP()
 		PB = self.PB()
 		CIBLE = cible(id_team)

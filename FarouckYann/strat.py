@@ -8,24 +8,27 @@ class Gardien(Strategy):
 		Strategy.__init__(self, "Gardien")
 		
 	def compute_strategy(self, state, id_team, id_player):
-		return SoccerAction(ZERO, ZERO)
+		return gardien(state, id_team, id_player)
 		
-class Gardien(Strategy):
+class Defenseur(Strategy):
 	def __init__(self):
 		Strategy.__init__(self, "Gardien")
 		
 	def compute_strategy(self, state, id_team, id_player):
+		return fonceur_strat(state, id_team, id_player)
 		
 		
-class Gardien(Strategy):
+class Milieu(Strategy):
 	def __init__(self):
 		Strategy.__init__(self, "Gardien")
 		
 	def compute_strategy(self, state, id_team, id_player):
+		return fonceur_strat(state, id_team, id_player)
 	
-class Gardien(Strategy):
+class Attaquant(Strategy):
 	def __init__(self):
 		Strategy.__init__(self, "Gardien")
 		
 	def compute_strategy(self, state, id_team, id_player):
+		return fonceur_strat(state, id_team, id_player)
 		
