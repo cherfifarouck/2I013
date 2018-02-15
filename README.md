@@ -53,8 +53,8 @@ MetaState(state):
 ```
 
 - [x] @CherfiFarouck
-- [] Identation
-- [] Import
+- [ ] Identation
+- [ ] Import
 - [x] Nettoyage
 
 C'est le feu md sur github :heart_eyes:
