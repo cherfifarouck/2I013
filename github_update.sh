@@ -1,14 +1,6 @@
 git add *
 
-while true; do
-	read -p "Entrer message: " msg
-	case $msg in
-		[]* ) echo "Entrer message"; continue;;
-		* ) break;;
-	esac
-done
-
+read -p "Entrer message: " msg
 echo "ca a marched"
 
 git commit -m "$msg" && git push
-echo "cherfifarouck plus visibileeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
