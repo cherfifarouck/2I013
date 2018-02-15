@@ -8,6 +8,5 @@ simu = Simulation(get_team(1))
 show_simu(simu)
 
 
-"""Suprime les fichiers .pyc"""
-os.system("rm *.pyc")
-os.system("cd FarouckYann; rm *.pyc")
+"""Appelle un script bash qui suprime les fichiers *.pyc"""
+os.system("bash clean.sh")
