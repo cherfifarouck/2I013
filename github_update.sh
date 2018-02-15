@@ -10,4 +10,4 @@ done
 
 echo "ca a marched"
 
-git commit -m "$msg" && git push
+git commit -m "$msg" && git push && echo cherfifarouck
