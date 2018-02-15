@@ -1,6 +1,6 @@
-git add *
+echo "Add nouveaux fichiers"
 
-read -p "Entrer message: " msg
-echo "ca a marched"
+git add *
+read -p "Entrer commentaire commit: " msg
 
 git commit -m "$msg" && git push
