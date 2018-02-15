@@ -5,4 +5,5 @@ read -p "Entrer commentaire commit: " msg
 
 git commit -m "$msg" && git push
 
+echo "\n\n"
 git status
