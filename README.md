@@ -1,7 +1,15 @@
-	# Writers introduction
+# README
 
-#pas dindentation possible pour les titre sinon il considere 
-#que cest du code a quote :smile:
+## Structure
+
+FarouckYann | modelisation_terrain
+--- | ---
+strat.py | terrain.png 
+sous_strat.py |organisation_code.draw
+positionnement.py |
+conditions.py |
+tools.py |
+raw_tools.py |
 
 
 README file to understand the content and aim of the project. Created and
@@ -15,14 +23,6 @@ Testing *functionalities*
 
 ---------
 
-Le principal object de ce code ecrit en python est blabla
-
-Testing markdown.md
-
-probleme de **import** et d**indentation** a *regler*
-# Header 1 type of text
-## Header 2 type
-
 * List of basic stuff
 	* Go to the toilet
 	* Eat food
@@ -32,16 +32,12 @@ probleme de **import** et d**indentation** a *regler*
 	* Do sport
 	* See the sunlight
 
-Interesting part, this is a mapping of the original soccer field:
+### Interesting part, this is a mapping of the original soccer field:
 ![Soccer Field](Modelisation_terrain/terrain.png)
 
 Kanye West:
 >Were living the future so
 >the present is our past
-Somewhat poetic no that much of a douchebag after all maybe
-
-What does this think do `<code>` second test `ok i get it`
-
 
 ```
 MetaState(state):
@@ -56,21 +52,11 @@ MetaState(state):
 		sys.exit()
 ```
 
-- [x] @CherfiFarouck, #refs, [links](), **formatting**, and <del>tags</del> supported
-- [x] list syntax required (any unordered or ordered list supported)
-- [x] this is a complete item
-- [ ] this is an incomplete item
+- [x] @CherfiFarouck
+- [] Identation
+- [] Import
+- [x] Nettoyage
 
-genre ca marche
-
-mdr | kek
---- | ---
-euh daccord | pourquoi pas
-
-en fait cesst le fait github
-:smile:
-:heart_eyes:
-
-
+C'est le feu md sur github :heart_eyes:
 Link to our [website](http://www.cowsay.com)
 
