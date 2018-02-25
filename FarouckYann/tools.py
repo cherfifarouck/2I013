@@ -1,9 +1,11 @@
 from __future__ import absolute_import
 from soccersimulator  import Strategy, SoccerAction, Vector2D
 from soccersimulator import settings
+from .constantes import *
 import random
 import math
 import sys
+
 
 class MetaState(object):
 	def __init__(self, state, id_team, id_player):
@@ -12,17 +14,17 @@ class MetaState(object):
 		self._id_player = id_player
 		
 	def __getattr__(self, attr):
-		return _state.__getattr__(attr)
+		return self._state.__getattribute__(attr)
 	
 	
-	def PP():
-		return self._state.player_state(id_team, id_player).position
-	def PB():
+	def PP(self):
+		return self._state.player_state(self._id_team, self._id_player).position
+	def PB(self):
 		return self._state.ball.position
 
 	def get_distance_to(vec2D):
 		return self.player_state(_id_team, _id_player).position.distance(vec2D)
-	def get_cible():
+	def get_cible(self):
 		if self._id_team == 1:
 			return CENTRE_GOAL_DROIT
 		else: return CENTRE_GOAL_GAUCHE
@@ -61,22 +63,22 @@ class MetaState(object):
 		
 		if get_angle_vectoriel((PB - PP), (CIBLE - PP)) <= angle_acceptant: return True
 		else: return False
-	def pres_de_la_balle():
-		if (self.ball.position.distance(self.player_state(_id_team, _id_player).position) \
+	def pres_de_la_balle(self):
+		if (self.ball.position.distance(self.player_state(self._id_team, self._id_player).position) \
 		<= settings.BALL_RADIUS + settings.PLAYER_RADIUS):
 			return True
 		else: 
 			return False
-	def joueur_partie_superieure():
+	def joueur_partie_superieure(self):
 		if t.PB().y >= GH / 2: return True
 		else: return False
-	def cage():
+	def cage(self):
 		if self._id_team == 1:
 			return CENTRE_GOAL_GAUCHE
 		else: return CENTRE_GOAL_DROIT
-	def id_adverse():
+	def id_adverse(self):
 		return (self._id_team % 2)+1
-	def test_proximite_ennemi():
+	def test_proximite_ennemi(self):
 		PP = self.PP()
 		PB = self.PB()
 		
@@ -86,7 +88,7 @@ class MetaState(object):
 				return False
 				
 		return True
-	def test_proximite_equipe():
+	def test_proximite_equipe(self):
 		PP = self.PP()
 		PB = self.PB()
 			
@@ -116,7 +118,7 @@ class MetaState(object):
 			< angle:
 				return False
 		return True
-	def possession_equipe():
+	def possession_equipe(self):
 		PP = self.PP()
 		PB = self.PB()
 		

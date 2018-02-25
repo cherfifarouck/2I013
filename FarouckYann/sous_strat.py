@@ -3,10 +3,11 @@ from tools import MetaState
 from conditions import *
 from comportement import *
 from raw_tools import *
+from comportement import *
 
 def fonceur_strat(state, id_team,id_player):
 	tools = MetaState(state, id_team, id_player)
-	return courir_vers_balle(tools) + tirer_goal(tools)
+	return foncer_vers_balle(tools) + tirer_goal(tools)
 
 def random_strat(state, id_team, id_player):
 	tools = MetaState(state, id_team, id_player)
@@ -71,7 +72,7 @@ def murs(state, id_team, id_player):
 		else: return placement(state, id_team, id_player, "defenseur central", strategie = "normale")
 	else: return fonceur(state, id_team, id_player)
 			
-def meta_strat(self, state, id_team, id_player):
+def meta_strat(state, id_team, id_player):
 	t = MetaState(state, id_team, id_player)
 
 	PP = t.PP()
@@ -102,7 +103,7 @@ def meta_strat(self, state, id_team, id_player):
 	#Pu
 	else: return garder_distance(state, id_team, id_player)
 
-def attaque(self, state, id_team, id_player):
+def attaque(state, id_team, id_player):
 	t = MetaState(state, id_team, id_player)
 
 	PP = t.PP()
@@ -157,17 +158,17 @@ def attaque(self, state, id_team, id_player):
 		return courir_vers_balle(t)
 	else: placement(t, "attaquant", strat="ultra offensive")
 
-def attente(self,state,id_team,id_player, position):
+def attente(state,id_team,id_player, position):
 	t = MetaState(state, id_team, id_player)
 	position = Vector2D(GW/3, GH/2)
 	PP = t.PP()
 	
 	return SoccerAction(ZERO, ZERO)
 
-def passe_a_2_3_4(self, state, id_team, id_player):
+def passe_a_2_3_4(state, id_team, id_player):
 	return 0
 
-def gardien(self, state, id_team, id_player):
+def gardien(state, id_team, id_player):
 	t = MetaState(state, id_team, id_player)
 
 	PP = t.PP()
@@ -178,17 +179,17 @@ def gardien(self, state, id_team, id_player):
 	coefficient_entrainement = 0.44
 	distanceAuCage = 10
 	
-	if pres_de_la_balle(state, id_team, id_player):
-		return tirer_balle_vers(tools, coefficient_entrainement, coordonnees=CIBLE)
+	if t.pres_de_la_balle():
+		return tirer_balle_vers(t, coefficient_entrainement, coordonnees=CIBLE)
 	
 	#aspect visuel du deplacement
 	if con_rendre_symetrique(PB.x >= GW/2, PB.x < GW/2, t):
-		return courir_vers(t, distanceAuCage * (PB - GOAL).normalize(), 0.30)
+		return courir_vers(t, GOAL + distanceAuCage * (PB - GOAL).normalize(), 0.30)
 		
 	if not con_rendre_symetrique(PB.x >= GW/2, PB.x < GW/2, t): 
-		return courir_vers(t, distanceAuCage * (PB - GOAL).normalize(), 0.75)
+		return courir_vers(t, GOAL + distanceAuCage * (PB - GOAL).normalize(), 0.75)
 
-def garder_distance(self, state, id_team, id_player):
+def garder_distance(state, id_team, id_player):
 		t = MetaState(state, id_team, id_player)
 		
 		PP = t.PP()
@@ -199,7 +200,7 @@ def garder_distance(self, state, id_team, id_player):
 		
 		return courir_vers(t, (CAGE - PB).normalize() * distance) 
 
-def L2(self, state, id_team, id_player):
+def L2(state, id_team, id_player):
 	t = MetaState(state, id_team, id_player)
 	
 	PP = t.PP()
@@ -220,7 +221,7 @@ def L2(self, state, id_team, id_player):
 			return fonceur(state, id_team, id_player)
 
 #Contenir joueur specifique
-def marquage(self, state, id_team, id_player):
+def marquage(state, id_team, id_player):
 	t = MetaState(state, id_team, id_player)
 
 	PP = t.PP()
@@ -234,3 +235,36 @@ def marquage(self, state, id_team, id_player):
 	listeAMarquer = listeAMarquer[1::len(listeAMarquer)+1]
 	
 	return courir_vers(t, (GOAL - state.player_state(t.id_adverse(), joueur).position).normalize() * distance)
+
+def place_et_passe(state, id_team, id_player, CIBLE, distance_derriere_balle = 1.49):
+	PP = state.player_state(id_team, id_player).position
+	PB = state.ball.position
+	player_shoot = puissance_shoot((CIBLE - PP).norm)
+	rayon_ralentissement = distance_a_decelerer(state.player_state(id_team, id_player).vitesse.norm)
+	
+	if pres_de_la_balle(state, id_team, id_player) and \
+	PB.distance(PP) <= rayon_ralentissement and not face_au_ballon(state, id_team, id_player, CIBLE):
+		# ralentir
+		return SoccerAction( ZERO, ZERO)
+			
+	if pres_de_la_balle(state, id_team, id_player) and face_au_ballon(state, id_team, id_player, CIBLE):
+		#shoot
+		return SoccerAction(ZERO, (CIBLE-PP).normalize() * maxB*player_shoot )
+	
+	else: 
+		#courir
+		return SoccerAction( (PB- PP + (PB - CIBLE).normalize() * distance_derriere_balle).normalize()* maxP, ZERO)
+
+## Deplacement le bo jeu
+def deviation(state, id_team, id_player, angle): #si pres de la balle
+		PB = state.ball.position
+		PP = state.player_state(id_team, id_player).position
+		
+		direction = state.player_state(id_team, id_player).vitesse
+		direction.angle += angle
+		direction = direction.normalize()
+		
+		return SoccerAction(
+			maxP * (PB - PP).normalize(),
+			maxB * 0.22 * direction
+			)

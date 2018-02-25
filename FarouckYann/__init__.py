@@ -5,7 +5,7 @@ from .strat import Gardien, Defenseur, Milieu, Attaquant
 def get_team(nb_players):
 	myteam = SoccerTeam(name="Real")
 	if nb_players == 1:
-		myteam.add("J1", Attaquant())
+		myteam.add("J1", Defenseur())
 	if nb_players == 2:
 		myteam.add("J1", Attaquant())
 		myteam.add("J2", Attaquant())

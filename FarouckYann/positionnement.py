@@ -95,39 +95,6 @@ def vecteur_placement(state, id_team, id_player, A):
 	deplacement = (A - PP + k*(PB -A).normalize()).normalize * maxP
 	return SoccerAction(deplacement, ZERO)
 
-def place_et_passe(state, id_team, id_player, CIBLE, distance_derriere_balle = 1.49):
-	PP = state.player_state(id_team, id_player).position
-	PB = state.ball.position
-	player_shoot = puissance_shoot((CIBLE - PP).norm)
-	rayon_ralentissement = distance_a_decelerer(state.player_state(id_team, id_player).vitesse.norm)
-	
-	if pres_de_la_balle(state, id_team, id_player) and \
-	PB.distance(PP) <= rayon_ralentissement and not face_au_ballon(state, id_team, id_player, CIBLE):
-		# ralentir
-		return SoccerAction( ZERO, ZERO)
-			
-	if pres_de_la_balle(state, id_team, id_player) and face_au_ballon(state, id_team, id_player, CIBLE):
-		#shoot
-		return SoccerAction(ZERO, (CIBLE-PP).normalize() * maxB*player_shoot )
-	
-	else: 
-		#courir
-		return SoccerAction( (PB- PP + (PB - CIBLE).normalize() * distance_derriere_balle).normalize()* maxP, ZERO)
-
-## Deplacement le bo jeu
-def deviation(state, id_team, id_player, angle): #si pres de la balle
-		PB = state.ball.position
-		PP = state.player_state(id_team, id_player).position
-		
-		direction = state.player_state(id_team, id_player).vitesse
-		direction.angle += angle
-		direction = direction.normalize()
-		
-		return SoccerAction(
-			maxP * (PB - PP).normalize(),
-			maxB * 0.22 * direction
-			)
-
 ## Placement par defaut
 def placement(self, state, id_team, id_player):
 		PP = state.player_state(id_team, id_player).position

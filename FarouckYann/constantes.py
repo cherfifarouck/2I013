@@ -1,3 +1,5 @@
+from soccersimulator import settings, Vector2D
+
 ######### Definition alias ------------------------------------------------------------------------------- #
 #PP = state.player_state(id_team, id_player) ##comment regler ce probleme? MetaBall
 #PB = state.ball.position
