@@ -1,138 +1,167 @@
 ## sous_strat.py
-from tools import MetaState
-from conditions import *
-from comportement import *
-from raw_tools import *
-from comportement import *
+from .tools import MetaState
+from .conditions import *
+from .comportement import *
+from .raw_tools import *
+from .comportement import *
+from .strat import Gardien
 
-def fonceur_strat(state, id_team,id_player):
-	tools = MetaState(state, id_team, id_player)
-	return foncer_vers_balle(tools) + tirer_goal(tools)
-
-def random_strat(state, id_team, id_player):
-	tools = MetaState(state, id_team, id_player)
-	return random(tools)
-
-def furtive(state, id_team, id_player):
-	t = MetaState(state, id_team, id_player)
-	
-	#TRIGO
-	distance_but = GW/4
-	CIBLE = t.get_cible()
-	PP = t.PP()
-	PB = t.PB()
-	X = t.player_state(t._id_team, t._id_player).position.x
-	Y = t.player_state(t._id_team, t._id_player).position.y
-	
-	if t.proximite_horizontale_but(distance_but): 
-		return tirer_goal(t) + courir_vers_balle(t)
-		
-	
-	if not t.proximite_horizontale_but(distance_but):
-		return courir_vers_balle(t) + dribler_contre_mur(t)
-
-## Le dribleur / balle au pied
-def balle_au_pied(state, id_team, id_player, plot=0, coord=[]):
-		tools = MetaState(state, id_team, id_player)
-		t = tools
-		
-		PB = t.PB()
-		PP = t.PP()
-		
+##Deplacement avec balle
+def balle_au_pied(tools, plot=0, coord=[]):
 		precision_drible = 0.27
 		prochaine_direction = Vector2D(coord[plot].x, coord[plot].y)
 		plot += 1
 		
 		return (tirer_balle_vers(t, prochaine_direction, precision_drible), plot)
+def deviation(tools, angle): #si pres de la balle
+		direction = tools.speed
+		direction.angle += angle
+		direction = direction.normalize()
+		
+		return SoccerAction(
+			maxP * (tools.PB - tools.PP).normalize(),
+			maxB * 0.22 * direction
+			)
+def manoeuvre_devasion(tools):
+	con = Conditions(tools)
+	angle = math.pi / 5
+	
+	if con.joueur_partie_superieure():
+		return deviation(deviation, angle)
+	return deviation(deviation, -angle)
+def manoeuvre_devasion2(tools):
+	return 0
 
-# a update
-def murs(state, id_team, id_player):
-	t = MetaState(state, id_team, id_player)
+##Deplacement sans balle
+def attente(tools, position):
+	position = Vector2D(GW/3, GH/2)
+	return SoccerAction(ZERO, ZERO)
+def random_strat(tools):
+	return random(tools)
+def garder_distance(tools, proportion=0.28):
+		return courir_vers(tools, tools.PB + (tools.cage - tools.PB) * proportion) 
+def marquage(tools):
+	distance = 15
 	
-	PP = t.PP()
-	PB = t.PB()
-	CIBLE = t.get_cible()
-	rayon = 10 #sujet a modification
-	angle = math.pi/4
+	id_a_marquer = fonction_marquage_encodee(tools)[tools.id_player]
+	position = self.player_state(self.id_adverse, id_a_marquer).position
 	
-	if t.possession_equipe():
-		if t.test_proximite_equipe():
-			if t.voie_libre(CIBLE, angle) != True:
-				if state.player_state(t.id_adverse(), t.get_ennemi_obstacle\
-				(CIBLE, angle)).position.distance\
-				(PP) <= rayon:
-					return furtive()(state, id_team, id_player)
+	return courir_vers(tools, (tools.PP - position) + (self.cage - positon).normalize() * distance)
+def place_et_passe(tools, CIBLE, distance_derriere_balle = 1.49):
+	con = Conditions(tools)
+	player_shoot = puissance_recommandee(tools.get_distance_to(CIBLE), (CIBLE - tools.PP).angle)
+	# rayon_ralentissement = distance_a_decelerer(state.player_state(id_team, id_player).vitesse.norm)
+	
+	if tools.pres_de_la_balle() and \
+	tools.get_distance_to_ball() <= rayon_ralentissement and not con.face_au_ballon(CIBLE):
+		# ralentir
+		return SoccerAction( ZERO, ZERO)
 			
-				else:
-					return balle_au_pied(state, id_team, id_player)
-			
-			if t.voie_libre(CIBLE, angle):
-				return balle_au_pied(state, id_team, id_player)
-			
-		else: return placement(state, id_team, id_player, "defenseur central", strategie = "normale")
-	else: return fonceur(state, id_team, id_player)
-			
-def meta_strat(state, id_team, id_player):
-	t = MetaState(state, id_team, id_player)
-
-	PP = t.PP()
-	PB = t.PB()
-	CIBLE = t.get_cible()
+	if tools.pres_de_la_balle() and tools.face_au_ballon(CIBLE):
+		#shoot
+		return tirer_balle_vers(tools, player_shoot, coordonnees=CIBLE)
 	
-	#rapidite
-	ennemi = state.player_state(t.id_adverse(), t.closest_to_ball()).position
-	if t.get_distance_to(PB) > t.get_distance_between(PB, ennemi): 
-		return fonceur(state, id_team, id_player)
-	
-	#separation murs
-	if abs(PB.y - GH /2) >= 4 * GH /10:
-		return furtive(state, id_team, id_player)
-	
-	#degagement
-	if con_rendre_symetrique(PB.x <= GW / 4, PB.x >= 3 * GW / 4, t):
-		return fonceur(state, id_team, id_player)
-	
-	#droit au but
-	if con_rendre_symetrique(PB.x >= 2 * GW / 3, PB.x <= GW / 3, t):
-		return fonceur(state, id_team, id_player)
+	else: 
+		#courir
+		return fonceur_predict(tools)
 
-	#Defense intelligente PAS SYMETRIQUE
-	if con_rendre_symetrique(PB.x > GW / 4 and PB.x <= GW / 2, PB.x < 3 *GW / 4 and PB.x >= GW / 2, t):
-		return L2(state, id_team, id_player)
 
-	#Pu
-	else: return garder_distance(state, id_team, id_player)
-
-def attaque(state, id_team, id_player):
-	t = MetaState(state, id_team, id_player)
-
-	PP = t.PP()
-	PB = t.PB()
-	CIBLE = t.get_cible()
+##Strategie finale simple
+def fonceur_strat(tools):
+	return foncer_vers_balle(tools) + tirer_goal(tools)
+def fonceur_predict(tools):
+	def intercept_ball(tools):
+		""" Intercept plus efficacement la balle. """
+		con = Conditions(tools)
+		
+		##Parameters
+		distance_annulation = 20
+		coefficient_prediction = 15
+		
+		if tools.get_distance_to_ball() <= distance_annulation:
+			return foncer_vers_balle(tools)
+		
+		else:
+			point_interception = tools.PB + coefficient_prediction * tools.b_speed.normalize()
+			return courir_vers(tools, point_interception)
+	return intercept_ball(tools) + tirer_goal(tools)
+def furtive(tools):
+	con = Conditions(tools)
 	
+	#TRIGO
+	distance_but = GW/4
+	CIBLE = tools.cible
+	X = tools.player_state(t._id_team, t._id_player).position.x
+	Y = tools.player_state(t._id_team, t._id_player).position.y
+	
+	if con.proximite_horizontale_but(distance_but): 
+		return tirer_goal(tools) + courir_vers_balle(tools)
+	
+	if not con.proximite_horizontale_but(distance_but):
+		return courir_vers_balle(tools) + dribler_contre_mur(tools)
+def gardien(tools):
+	con = Conditions(tools)
+	coefficient_entrainement = 0.44
+	distanceAuCage = 10
+	
+	if tools.pres_de_la_balle():
+		return tirer_balle_vers(tools, coefficient_entrainement, coordonnees=tools.cible)
+	
+	#aspect visuel du deplacement
+	if con.rendre_symetrique(tools.PB.x >= GW/2, tools.PB.x < GW/2):
+		return courir_vers(tools, tools.cage + distanceAuCage * (tools.PB - tools.cage).normalize(), 0.30)
+		
+	if not con.rendre_symetrique(tools.PB.x >= GW/2, tools.PB.x < GW/2): 
+		return courir_vers(tools, tools.cage + distanceAuCage * (tools.PB - tools.cage).normalize(), 0.75)
+def strategie_engagement1v1(tools):
+	return fonceur_strat(tools)
+
+##Autre
+def decision_defensive(tools):
+	print("je suis dans une decisions defensive")
+	if tools.proximity_ball_goal_ami() == "loin":
+		return fonceur_predict(tools)
+	
+	elif tools.proximity_ball_goal_ami() == "medium":
+		#on assume que le joueur ennemi va perdre la balle des quil tire
+		if tools.pres_de_la_balle(tools.get_closest_ennemy_to_ball()) : return fonceur_predict(tools)
+		else: return garder_distance(tools)
+		
+	elif tools.proximity_ball_goal_ami() == "proche":
+		return Gardien.compute_strategy(tools._state, tools._id_team, tools._id_player)
+def decision_offensive(tools):
+	con = Conditions(tools)
+	
+	if not con.ennemi_eloigne1v1() == "proche":
+		return balle_au_pied(tools) #vers les goals ou ailleurs
+	
+	else:
+		return manoeuvre_devasion()
+def attaque(tools):
+	con = Conditions(tools)
 	distance_goal = 25
 	distance_joueur = 35
 	angle_deviation = math.pi /4
 	
-	if t.pres_de_la_balle(): 
-		if t.proximite_au_but(distance_goal) == True or \
-		(t.voie_libre(CIBLE) == True and t.get_distance_between(PB, CIBLE) < 40):
+	if tools.pres_de_la_balle(): 
+		if tools.proximite_au_but(distance_goal) == True or \
+		(con.voie_libre(tools.cible) == True and tools.get_distance_between(tools.PB, tools.cible) < 40):
 			print("proche des buts voie libre assez proche")
-			return fonceur(state, id_team, id_player)
+			return fonceur(tools)
 		
-		if t.voie_libre(CIBLE):
+		if con.voie_libre(self.cible):
 			print("voie libre")
-			return balle_au_pied(state, id_team, id_player, coordonnees = CIBLE)
+			return balle_au_pied(tools, coordonnees=tools.cible)
 		
-		if not t.voie_libre(CIBLE):
+		if not con.voie_libre(tools.cible):
 			print("voie po libre")
-			ennemi = t.get_ennemi_obstacle(CIBLE)
-			ennemi_ = state.player_state(t.id_adverse(), ennemi)
+			ennemi = tools.get_ennemi_obstacle(tools.cible)
+			ennemi_ = tools.player_state(tools.id_adverse(), ennemi)
 			deplacement = (state.player_state(t.id_adverse(), ennemi).position - PB)
 			deplacement.norm = 0.21
 			
 			#commencer drible
-			if get_distance_between(ennemi_.position, PP) < distance_joueur:
+			if tools.get_distance_between(ennemi_.position, PP) < distance_joueur:
 				print("ennemi proche")
 				#on se rapproche des murs
 				
@@ -141,130 +170,19 @@ def attaque(state, id_team, id_player):
 					angle_deviation += math.pi/8
 					coef = -1
 				
-				if con_rendre_symetrique(PB.y >= GH/2, PB.y < GH/2, t):
+				if con.rendre_symetrique(PB.y >= GH/2, PB.y < GH/2, tools):
 					deplacement.angle += coef * angle_deviation
-					return foncer_vers_balle(t) + tirer_balle_vers(t, maxB, direction=deplacement)
+					return foncer_vers_balle(tools) + tirer_balle_vers(tools, 1., direction=deplacement)
 				else:
 					deplacement.angle -= coef * angle_deviation
-					return foncer_vers_balle(t) + tirer_balle_vers(t, maxB, direction=deplacement)
+					return foncer_vers_balle(tools) + tirer_balle_vers(tools, 1., direction=deplacement)
 			
 			else: 
 				print("placement")
 				return balle_au_pied([CIBLE])
 			
 	#prendre linitiative
-	if t.test_proximite_equipe():
+	if tools.test_proximite_equipe():
 		print("je suis le plus proche dans lequipe")
-		return courir_vers_balle(t)
-	else: placement(t, "attaquant", strat="ultra offensive")
-
-def attente(state,id_team,id_player, position):
-	t = MetaState(state, id_team, id_player)
-	position = Vector2D(GW/3, GH/2)
-	PP = t.PP()
-	
-	return SoccerAction(ZERO, ZERO)
-
-def passe_a_2_3_4(state, id_team, id_player):
-	return 0
-
-def gardien(state, id_team, id_player):
-	t = MetaState(state, id_team, id_player)
-
-	PP = t.PP()
-	PB = t.PB()
-	GOAL = t.cage()
-	CIBLE = t.get_cible()
-	
-	coefficient_entrainement = 0.44
-	distanceAuCage = 10
-	
-	if t.pres_de_la_balle():
-		return tirer_balle_vers(t, coefficient_entrainement, coordonnees=CIBLE)
-	
-	#aspect visuel du deplacement
-	if con_rendre_symetrique(PB.x >= GW/2, PB.x < GW/2, t):
-		return courir_vers(t, GOAL + distanceAuCage * (PB - GOAL).normalize(), 0.30)
-		
-	if not con_rendre_symetrique(PB.x >= GW/2, PB.x < GW/2, t): 
-		return courir_vers(t, GOAL + distanceAuCage * (PB - GOAL).normalize(), 0.75)
-
-def garder_distance(state, id_team, id_player):
-		t = MetaState(state, id_team, id_player)
-		
-		PP = t.PP()
-		PB = t.PB()
-		CAGE = t.get_cage()
-		CIBLE = t.cible()
-		distance = 0.33
-		
-		return courir_vers(t, (CAGE - PB).normalize() * distance) 
-
-def L2(state, id_team, id_player):
-	t = MetaState(state, id_team, id_player)
-	
-	PP = t.PP()
-	PB = t.PB()
-	coefficient = 0.33
-	CIBLE = t.get_cible()
-	CAGE = t.cage()
-			
-	
-	if con_rendre_symetrique(PB.x >= 4*GW/7, PB.x <= 3* GW/7, t):
-		return fonceur(state, id_team, id_player)
-		
-	else:
-		if  t.get_distance_to(PB) > t.get_distance_between(PB, state.player_state(2,0).position):
-			return garder_distance(state, id_team, id_player)
-	
-		else: 
-			return fonceur(state, id_team, id_player)
-
-#Contenir joueur specifique
-def marquage(state, id_team, id_player):
-	t = MetaState(state, id_team, id_player)
-
-	PP = t.PP()
-	PB = t.PB()
-	CIBLE = t.get_cible()
-	GOAL = t.cage()
-	distance = 15
-	
-	listeAMarquer = [k for k in state.players] #plus ou moins
-	joueur = listeAMarquer[0][1]
-	listeAMarquer = listeAMarquer[1::len(listeAMarquer)+1]
-	
-	return courir_vers(t, (GOAL - state.player_state(t.id_adverse(), joueur).position).normalize() * distance)
-
-def place_et_passe(state, id_team, id_player, CIBLE, distance_derriere_balle = 1.49):
-	PP = state.player_state(id_team, id_player).position
-	PB = state.ball.position
-	player_shoot = puissance_shoot((CIBLE - PP).norm)
-	rayon_ralentissement = distance_a_decelerer(state.player_state(id_team, id_player).vitesse.norm)
-	
-	if pres_de_la_balle(state, id_team, id_player) and \
-	PB.distance(PP) <= rayon_ralentissement and not face_au_ballon(state, id_team, id_player, CIBLE):
-		# ralentir
-		return SoccerAction( ZERO, ZERO)
-			
-	if pres_de_la_balle(state, id_team, id_player) and face_au_ballon(state, id_team, id_player, CIBLE):
-		#shoot
-		return SoccerAction(ZERO, (CIBLE-PP).normalize() * maxB*player_shoot )
-	
-	else: 
-		#courir
-		return SoccerAction( (PB- PP + (PB - CIBLE).normalize() * distance_derriere_balle).normalize()* maxP, ZERO)
-
-## Deplacement le bo jeu
-def deviation(state, id_team, id_player, angle): #si pres de la balle
-		PB = state.ball.position
-		PP = state.player_state(id_team, id_player).position
-		
-		direction = state.player_state(id_team, id_player).vitesse
-		direction.angle += angle
-		direction = direction.normalize()
-		
-		return SoccerAction(
-			maxP * (PB - PP).normalize(),
-			maxB * 0.22 * direction
-			)
+		return courir_vers_balle(tools)
+	else: placement(tools, "attaquant", strat="ultra offensive")

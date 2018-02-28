@@ -1,14 +1,14 @@
 from __future__ import absolute_import
 from soccersimulator import SoccerTeam
-from .strat import Gardien, Defenseur, Milieu, Attaquant
+from .strat import Gardien, Defenseur, Milieu, Attaquant, UnVUn, Test
 
 def get_team(nb_players):
 	myteam = SoccerTeam(name="Real")
 	if nb_players == 1:
-		myteam.add("J1", Defenseur())
+		myteam.add("J1", UnVUn())
 	if nb_players == 2:
-		myteam.add("J1", Attaquant())
-		myteam.add("J2", Attaquant())
+		myteam.add("J1", UnVUn())
+		myteam.add("J2", UnVUn())
 	if nb_players == 3:
 		myteam.add("J1", Attaquant())
 		myteam.add("J2", Attaquant())

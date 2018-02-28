@@ -1,16 +1,15 @@
 ## comportement.py
 from soccersimulator import SoccerAction
-from constantes import *
+from .constantes import *
 
 def foncer_vers_balle(tools):
 	t = tools
-	return courir_vers(t, t.PB(), 1)
+	return courir_vers(t, t.PB, 1)
 
 def courir_vers(tools, endroit, acceleration=1):
-	t = tools
 	acceleration *= maxP
 	
-	return SoccerAction((endroit - t.PP()).normalize() * acceleration, ZERO)
+	return SoccerAction((endroit - tools.PP).normalize() * acceleration, ZERO)
 
 def tirer_balle_vers(tools, force, **kwargs):
 	"""Renvoie un SoccerAction vers la coordonnees
@@ -19,54 +18,55 @@ def tirer_balle_vers(tools, force, **kwargs):
 	force compris entre 0 et 1.
 	"""
 	
-	t = tools
 	force *= maxB
 	
-	if t.pres_de_la_balle():
+	if tools.pres_de_la_balle():
 		if "direction" in kwargs:
-			return foncer_vers_balle(t) + SoccerAction( 
+			return foncer_vers_balle(tools) + SoccerAction( 
 			ZERO, 
 			(kwargs["direction"].normalize() * force)
 			)
 
 		if "coordonnees" in kwargs:
-			return foncer_vers_balle(t) + SoccerAction( 
+			return foncer_vers_balle(tools) + SoccerAction( 
 			ZERO, 
-			(kwargs["coordonnees"] - t.PP()).normalize() * force
+			(kwargs["coordonnees"] - tools.PP).normalize() * force
 			)
 	
 	return SoccerAction(ZERO, ZERO)
 
 def tirer_goal(tools):
-	t = tools
-	return tirer_balle_vers(t, 1, coordonnees=t.get_cible())
+	return tirer_balle_vers(tools, 1, coordonnees=tools.cible)
 
 def random(tools):
-	t = tools
 	return SoccerAction(Vector2D.create_random(-1, 1), Vector2D.create_random(-1, 1))
 
 def garder_but(tools):
 	return 0
 	
 def dribler_contre_mur(tools):
-	t = tools
-	PB = t.PB()
-	PP = t.PP()
-	X = t.player_state(t._id_team, t._id_player).position.x
-	Y = t.player_state(t._id_team, t._id_player).position.y
+	con = Conditions(tools)
+	CIBLE = tools.cible
+	X = tools.player_state(tools._id_team, tools._id_player).position.x
+	Y = t.player_state(tools._id_team, tools._id_player).position.y
 	
-	if t.joueur_partie_superieure():
+	if con.joueur_partie_superieure():
 		return SoccerAction(
-					(PB - PP).normalize() * maxP,
+					(tools.PB - tools.PP).normalize() * maxP,
 					Vector2D((GH - Y)* (CIBLE.x - X) / (GW/2 + abs(Y- GW/2)), GH).normalize() 
 					* maxB
 					)
 	
-	if not t.joueur_partie_superieure():
+	if not con.joueur_partie_superieure():
 		return SoccerAction(
-					(PB - PP).normalize() * maxP + state.ball.vitesse,
+					(tools.PB - tools.PP).normalize() * maxP + tools.b_speed,
 					Vector2D((GH - Y)* (CIBLE.x - X) / (GW/2 + abs(Y-GW/2)), -GH).normalize() 
 					* maxB
 					)
 
+def tirer(tools):
+	return (tools.cible - tools.PB).normalize() *  \
+	puissance_recommandee(tools.get_distance_to_goal(), tools.get_angle_to_goal())
 
+def retourner_au_cage(tools):
+	return courir_vers(tools, tools.cage)
