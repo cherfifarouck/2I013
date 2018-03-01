@@ -16,8 +16,7 @@ class Conditions(MetaState):
 			return self.tools.__getattribute__(attr)
 		else:
 			return self.tools._state.__getattribute__(attr)
-		
-	# supprimer "con_"
+	
 	def rendre_symetrique(self, condition1, condition2):
 			if condition1 and self._id_team == 1 or condition2 and self._id_team == 2:
 				return True
@@ -31,7 +30,7 @@ class Conditions(MetaState):
 		else: return False
 		
 	def joueur_partie_superieure(self):
-		if self.PB().y >= GH / 2: return True
+		if self.PB.y >= GH / 2: return True
 		else: return False
 	
 	def proximite_to_ball(self, distance):
@@ -55,7 +54,7 @@ class Conditions(MetaState):
 		return False
 	
 	def ennemi_eloigne_de_ses_cages1v1(self):
-		if self.get_distance_to(self.cible) < self.get_distance_between(self.get_position_adversaire1v1, self.cible):
+		if self.get_distance_to(self.cible) < self.get_distance_between(self.get_position_adversaire1v1(), self.cible):
 			return True
 		else: return False
 	
@@ -97,17 +96,18 @@ class Conditions(MetaState):
 		return False
 
 	def goal_ennemi_couvert(self):
-		return voie_libre(self.get_cible())
+		return self.voie_libre(self.cible)
 		
 	def condition_de_tir(self, seuil=0.5):
-		if probabilite_de_marquer(self.t)  >= seuil:
+		if self.get_distance_between(self.PB, self.cible) < 40:
 			return True
-		return False
+		return False # a enlever une fois que la probabilite sera au point
+		
+		#if probabilite_de_marquer(self.tools)  >= seuil:
+			#return True
+		#return False
 
 	def engagement(self): #simplification
-		# la balle est pas au milieu a lengagement rt self.PB == Vector2D(GW / 2, GH / 2))
-		#print(self.PB, Vector2D(GW / 2, GH / 2))
-		#print(("condition",self.PB == Vector2D(GW / 2, GH / 2)))
 		return self.PB == Vector2D(GW / 2, GH / 2)
 	
 	def ennemi_eloigne1v1(self):
@@ -116,14 +116,14 @@ class Conditions(MetaState):
 		return True
 	
 	def voie_libre(self, CIBLE, angle = math.pi/5):
-		liste_position_ennemi = self.get_ennemy_positions()
+		liste_ennemi = self.get_ennemy_positions()
 		
 		for ennemi in liste_ennemi:
-			if faire_obstacle(self.PB, CIBLE, ennemi, angle):
+			if self.faire_obstacle(self.PB, CIBLE, ennemi, angle):
 				return False
 		return True
 	
-	def faire_obstacle(self, A, B, obstacle, angle=math.pi / 5):
+	def faire_obstacle(self, A, B, obstacle, angle=3 * math.pi / 10):
 		if get_angle_vectoriel(obstacle - A, B - A) < angle:
 			return True
 		else: return False
@@ -134,5 +134,30 @@ class Conditions(MetaState):
 
 	def balle_dangereuse(self):
 		if self.proximity_ball_goal_ami() == "proche" and self.get_angle_to_goal() < math.pi / 2 or  self.get_distance_between(self.PB, self.cage) < 20:
-			return True
+			if self.get_distance_between(self.get_closest_ennemy_to_ball(), self.PB) <= 15:
+				return True
+			else: return "potentiellement dangereuse"
 		else: return False
+
+	def situation1v1_gardien(self):
+		def is_dernier_defenseur(self):
+			defenseur = self.get_friendly_positions()
+			
+			for allie in defenseur:
+				if allie != self.PP and self.get_distance_between(allie, self.PB) < 30:
+					return False
+			return True
+		
+		if is_dernier_defenseur(self) and self.get_distance_to_ball() < 15:
+			return True
+			
+		return False
+
+	def plus_proche(self, opt=0, joueur1=0, joueur2=0):
+		if opt != 0:
+			joueur1 = self.PP
+			joueur2 = self.get_position_adversaire1v1()
+		
+		if (self.PB - joueur1).norm >= (self.PB - joueur2).norm:
+			return 1
+		else: return -1

@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from soccersimulator import SoccerTeam
-from .strat import Gardien, Defenseur, Milieu, Attaquant, UnVUn, Test
+from .strat import Gardien, Defenseur, Milieu, Attaquant, UnVUn, Test, Test2
 
 def get_team(nb_players):
 	myteam = SoccerTeam(name="Real")

@@ -9,6 +9,8 @@ from soccersimulator import settings, Vector2D
 K = 300 # distance maximale de trajet de la balle
 # valeur a trouver
 
+RAYON_ACTION = settings.BALL_RADIUS + settings.PLAYER_RADIUS
+
 maxP = settings.maxPlayerAcceleration
 maxB = settings.maxBallAcceleration
 GW = settings.GAME_WIDTH

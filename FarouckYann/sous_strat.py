@@ -7,38 +7,47 @@ from .comportement import *
 from .strat import Gardien
 
 ##Deplacement avec balle
-def balle_au_pied(tools, plot=0, coord=[]):
+
+def balle_au_pied(tools, coord=[ZERO], plot=0):
 		precision_drible = 0.27
-		prochaine_direction = Vector2D(coord[plot].x, coord[plot].y)
+		if coord == [ZERO]:
+			return dribler_vers(tools, precision_drible, tools.cible)
+			
+		coordonnees = Vector2D(coord[plot].x, coord[plot].y)
 		plot += 1
-		
-		return (tirer_balle_vers(t, prochaine_direction, precision_drible), plot)
+		return [dribler_vers(tools, precision_drible, prochaine_direction), plot]
 def deviation(tools, angle): #si pres de la balle
-		direction = tools.speed
+		direction = tools.p_speed
 		direction.angle += angle
 		direction = direction.normalize()
 		
-		return SoccerAction(
-			maxP * (tools.PB - tools.PP).normalize(),
-			maxB * 0.22 * direction
-			)
-def manoeuvre_devasion(tools):
+		return fonceur_predict(tools)
+		
+		#print("direction", tools._state.player_state(1,0).vitesse)
+		#return SoccerAction(Vector2D(1., 0.), ZERO)
+		return foncer_vers_balle(tools) + \
+			SoccerAction(0.,
+			maxB * 0.22 * direction)
+def drible1(tools):
 	con = Conditions(tools)
 	angle = math.pi / 5
 	
 	if con.joueur_partie_superieure():
-		return deviation(deviation, angle)
-	return deviation(deviation, -angle)
-def manoeuvre_devasion2(tools):
+		return deviation(tools, angle)
+	else:
+		return deviation(tools, -angle)
+def drible2(tools):
 	return 0
+def manoeuvre_devasion(tools):
+	return drible1(tools)
 
 ##Deplacement sans balle
-def attente(tools, position):
+def attente(tools, position=ZERO):
 	position = Vector2D(GW/3, GH/2)
 	return SoccerAction(ZERO, ZERO)
 def random_strat(tools):
 	return random(tools)
-def garder_distance(tools, proportion=0.28):
+def garder_distance(tools, proportion=0.23):
 		return courir_vers(tools, tools.PB + (tools.cage - tools.PB) * proportion) 
 def marquage(tools):
 	distance = 15
@@ -68,23 +77,10 @@ def place_et_passe(tools, CIBLE, distance_derriere_balle = 1.49):
 
 ##Strategie finale simple
 def fonceur_strat(tools):
-	return foncer_vers_balle(tools) + tirer_goal(tools)
+	return foncer_vers_balle(tools) + shooter_goal(tools)
 def fonceur_predict(tools):
-	def intercept_ball(tools):
-		""" Intercept plus efficacement la balle. """
-		con = Conditions(tools)
-		
-		##Parameters
-		distance_annulation = 20
-		coefficient_prediction = 15
-		
-		if tools.get_distance_to_ball() <= distance_annulation:
-			return foncer_vers_balle(tools)
-		
-		else:
-			point_interception = tools.PB + coefficient_prediction * tools.b_speed.normalize()
-			return courir_vers(tools, point_interception)
-	return intercept_ball(tools) + tirer_goal(tools)
+	prochaine_balle = tools.cible
+	return recuperation(tools, prochaine_balle)
 def furtive(tools):
 	con = Conditions(tools)
 	
@@ -104,21 +100,35 @@ def gardien(tools):
 	coefficient_entrainement = 0.44
 	distanceAuCage = 10
 	
+	if tools.get_distance_between(tools.get_closest_ennemy_to_ball(), tools.PB) > tools.get_distance_to_ball() + 20 and tools.b_speed < 2:
+		print("je vais predire la balle")
+		if con.balle_dangereuse():
+			return fonceur_predict(tools) # degagement
+		else:
+			return fonceur_predict(tools) # a terme faire une passe ici
+			
+	if con.situation1v1_gardien():
+		return triangle(tools)
+	
 	if tools.pres_de_la_balle():
 		return tirer_balle_vers(tools, coefficient_entrainement, coordonnees=tools.cible)
 	
 	#aspect visuel du deplacement
+	position_par_defaut = tools.cage + distanceAuCage * (tools.PB - tools.cage).normalize()
 	if con.rendre_symetrique(tools.PB.x >= GW/2, tools.PB.x < GW/2):
-		return courir_vers(tools, tools.cage + distanceAuCage * (tools.PB - tools.cage).normalize(), 0.30)
+		return courir_vers(tools, position_par_defaut, 0.30)
 		
 	if not con.rendre_symetrique(tools.PB.x >= GW/2, tools.PB.x < GW/2): 
-		return courir_vers(tools, tools.cage + distanceAuCage * (tools.PB - tools.cage).normalize(), 0.75)
+		return courir_vers(tools, position_par_defaut, 0.75)
 def strategie_engagement1v1(tools):
 	return fonceur_strat(tools)
 
 ##Autre
 def decision_defensive(tools):
-	print("je suis dans une decisions defensive")
+	con = Conditions(tools)
+	
+	if con.plus_proche(1) < 0:
+		return fonceur_predict(tools)
 	if tools.proximity_ball_goal_ami() == "loin":
 		return fonceur_predict(tools)
 	
@@ -128,15 +138,8 @@ def decision_defensive(tools):
 		else: return garder_distance(tools)
 		
 	elif tools.proximity_ball_goal_ami() == "proche":
-		return Gardien.compute_strategy(tools._state, tools._id_team, tools._id_player)
-def decision_offensive(tools):
-	con = Conditions(tools)
-	
-	if not con.ennemi_eloigne1v1() == "proche":
-		return balle_au_pied(tools) #vers les goals ou ailleurs
-	
-	else:
-		return manoeuvre_devasion()
+		return Gardien().compute_strategy(tools._state, tools._id_team, tools._id_player)
+
 def attaque(tools):
 	con = Conditions(tools)
 	distance_goal = 25

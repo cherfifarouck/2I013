@@ -38,6 +38,9 @@ class MetaState(object):
 	@property
 	def b_speed(self):
 		return self.ball.vitesse
+	@property
+	def p_speed(self):
+		return self._state.player_state(self._id_team, self._id_player).vitesse
 	
 	def pres_de_la_balle(self, *args):
 		if args != ():
@@ -45,7 +48,7 @@ class MetaState(object):
 		else: objet = self.PP
 		
 		if self.get_distance_between(objet, self.PB) \
-		<= settings.BALL_RADIUS + settings.PLAYER_RADIUS:
+		<= RAYON_ACTION:
 			return True
 		else: 
 			return False
@@ -54,7 +57,7 @@ class MetaState(object):
 	def get_distance_to_ball(self):
 		return self.get_distance_to(self.PB)
 	def get_distance_to_goal(self):
-		return get_distance_to(self.cible)
+		return self.get_distance_to(self.cible)
 	def get_distance_between(self, vec1, vec2):
 		return vec1.distance(vec2)
 	def get_ennemi_rayon(self, rayon): #renvoie le player_state
@@ -107,8 +110,8 @@ class MetaState(object):
 		return False
 	def proximity_ball_goal_ami(self):
 		distance = self.get_distance_between(self.ball.position, self.cage)
-		if distance <= 35: return "proche"
-		elif distance <= 100: return "medium"
+		if distance <= 30: return "proche"
+		elif distance <= 80: return "medium"
 		else: return "loin"
 	
 	def puissance_shoot(self, distance):
@@ -125,3 +128,28 @@ class MetaState(object):
 		liste_ennemie = self.get_ennemy_positions()
 		liste_distance = [self.get_distance_between(ennemi, self.PB) for ennemi in liste_ennemie]
 		return liste_ennemie[liste_distance.index(min(liste_distance))]
+
+	def parametre_score(self):
+		score_ami = self._state.get_score_team(self._id_team)
+		score_ennemi = self._state.get_score_team(self._id_team % 2 +1)
+		
+		if score_ami == score_ennemi: return "egalite"
+		if abs(score_ami - score_ennemi) >= 3:
+			if score_ami > score_ennemi: return "avance comfortable"
+			else: return "cest la merde"
+		if score_ami > score_ennemi: return "petite avance"
+		else: return "petit retard"
+
+	def intercept_ball(self):
+			""" Intercept plus efficacement la balle. """
+			##Parameters
+			distance_annulation = 15
+			vitesse_danulation = 0
+			coefficient_prediction = 10
+			
+			if self.get_distance_to_ball() <= distance_annulation or self.b_speed < vitesse_danulation:
+				return self.PB
+			
+			else:
+				point_interception = self.PB + coefficient_prediction * self.b_speed.normalize()
+				return point_interception

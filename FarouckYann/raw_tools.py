@@ -36,10 +36,14 @@ def probabilite_de_marquer(tools):
 	puissance_shoot = puissance_recommandee(distance_au_goal, angle)
 	
 	tab_proba = [k / 100 for k in range(0, 101)]
-	return 0
+	return 1
 
 def puissance_recommandee(distance_au_cage, angle):
-	return maxB
+	if angle > math.pi/2 - math.pi/6:
+		return 0.5
+	if distance_au_cage > 50:
+		return 1
+	else: return 0.7
 
 
 def fonction_marquage_encodee(tools):
