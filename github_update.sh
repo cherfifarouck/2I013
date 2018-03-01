@@ -14,5 +14,5 @@ if [$save == "o"]; then
 	bash auto_save.sh
 	echo "Dossier sauvegarde"
 else
-	echo ""
+	echo "pas de sauvegarde"
 fi
