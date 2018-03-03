@@ -8,7 +8,7 @@ def get_team(nb_players):
 		myteam.add("J1", UnVUn())
 	if nb_players == 2:
 		myteam.add("J1", UnVUn())
-		myteam.add("J2", UnVUn())
+		myteam.add("J2", Gardien())
 	if nb_players == 3:
 		myteam.add("J1", Attaquant())
 		myteam.add("J2", Attaquant())

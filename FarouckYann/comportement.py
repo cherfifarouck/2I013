@@ -8,10 +8,14 @@ from tools import *
 from random import uniform
 
 def foncer_vers_balle(tools, speed=1):
+	print("je suis cense courir vers")
+	print("vers la", courir_vers(tools, tools.PB, speed))
+	print("je suis le joueur", tools._id_team)
 	return courir_vers(tools, tools.PB, speed)
 
 def dribler_vers(tools, precision_drible=0.25, endroit=ZERO):
-	return tirer_balle_vers(tools, precision_drible, coordonnees=endroit) + foncer_vers_balle(tools)
+	print("je suis cense dribler vers", endroit)
+	return foncer_vers_balle(tools) + tirer_balle_vers(tools, precision_drible, coordonnees=endroit)
 
 def courir_vers(tools, endroit, acceleration=1):
 	acceleration *= maxP

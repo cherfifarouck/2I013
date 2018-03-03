@@ -2,7 +2,8 @@
 import itertools
 import sys
 import math
-from constantes import maxB
+from soccersimulator import SoccerAction
+from constantes import maxB, ZERO
 
 def get_angle_vectoriel(v1, v2): #non oriente
 		#if v1.x == 0 or v2.x == 0: 
@@ -73,3 +74,12 @@ def fonction_marquage_encodee(tools):
 		return permutation_possible.index(min(tab_meso))
 	
 	return permutation()
+
+def partie_reelle(SA):
+	return SoccerAction(SA.acceleration, ZERO)
+
+def partie_imaginaire(SA):
+	return SoccerAction(ZERO, SA.shoot)
+	
+def mult_SA(k, SA):
+	return SoccerAction(k * SA.acceleration, k * SA.shoot)

@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from soccersimulator import Strategy, SoccerAction,Vector2D
 from soccersimulator import settings
+import math
 class Gardien(Strategy):
 	def __init__(self):
 		Strategy.__init__(self, "Gardien")
@@ -60,82 +61,84 @@ class UnVUn(Strategy):
 	def __init__(self):
 		""" POURQUOI ON UTILISE PAS UN SUPER"""
 		Strategy.__init__(self, "1 vs 1")
-		#self.derniere_decision = 0
-		#self.time_decision = 0
-		#self.parametre = parametre
+		self.debug = 0
 		
 	def compute_strategy(self, state, id_team, id_player):
+		def compteur(self, id_tim):
+			if id_tim == 1: return 0
+			self.debug += 1
+			print("tag", self.debug)
+			
+		def debug_init(self, id_tim):
+			self.debug = 0
+			print("tag 0")
+		
 		##Parameters
-		rayon_zone_de_confiance = 15
+		rayon_zone_de_confiance = 4.3
 		##End parameters
 		
 		tools = MetaState(state, id_team, id_player)
 		con = Conditions(tools)
 		
+		#debug_init(self, id_team)
+		#compteur(self, id_team)
+		
 		# Determination de la /phase/ de strategie:
 		def phase_of_strat(tools):
-			if con.engagement():
+			if con.condition_engagement():
 				return "undetermined"
 				
-			elif tools.get_distance_to_ball() + rayon_zone_de_confiance < \
+			elif tools.get_distance_to_ball() < \
 			tools.get_distance_between(tools.get_position_adversaire1v1(), tools.PB) or \
 			tools.get_distance_to_ball() < rayon_zone_de_confiance:
-				return "offensive"
+				return "offensive" #synonyme de avoir la balle
 			
 			else: 
 				return "defensive"
 		
 		phase = phase_of_strat(tools)
-		#print(phase)
+		#if id_team == 2: print(phase)
 		
 		def defense():
+			#compteur(self, id_team)
+			if con.goal_ami_couvert():
+				return decision_defensive(tools)
+			
+			#compteur(self, id_team)
+			
 			if not con.goal_ami_couvert(): ## paremetre de langle
+				#compteur(self, id_team)
 				if con.ennemi_devant_moi():
 					return retourner_au_cage(tools)
-					
-				else:
+				
+				#compteur(self, id_team)
+				if not con.ennemi_devant_moi():
+					#compteur(self, id_team)
 					if con.balle_dangereuse(): ## paremetre de la distance au goal
 						return retourner_au_cage(tools)
-						
-					else:
-						return garder_distance(tools) ## paremetre de la distance a garder
-						
-			else:
-				return decision_defensive(tools)
-		
-		def offense():
-			if True: #con.proximite_to_ball(rayon_zone_de_confiance):
-				if not con.ennemi_eloigne_de_ses_cages1v1():
-					if con.condition_de_tir(): ## dribler goal
-						print("tag1")
-						return tirer_goal(tools) + foncer_vers_balle(tools) ## Mettre la condition condition_de_tir au dessus une fois quelle sera au point
 					
-					else:
-						print("tag2")
-						return balle_au_pied(tools)
-				
-				else: 
-					if not con.goal_ennemi_couvert():
-						if con.condition_de_tir():
-							print("fonceur2")
-							return tirer_goal(tools)
-						
-						else:
-							print("fonceur3")
-							balle_au_pied(tools)
-							
-					else:
-						print("fonceur4")
-						return manoeuvre_devasion(tools)
+					#compteur(self, id_team)
+					if not con.balle_dangereuse():
+						return garder_distance(tools) ## paremetre de la distance a garder
+		
+		def offense():	
+			# recuperation de balle
+			#compteur(self, id_team)
+			if con.condition_degagement():
+				return degagement1v1(tools)
 			
-			elif con.closest_to_ball():
-				print("kektier")
-				return fonceur_predict(tools)
-				
-			print("arriver au bout de offense")
+			#compteur(self, id_team)
+			if tools.get_distance_to(tools.get_position_adversaire1v1()) <= 15 \
+			and not con.voie_libre(tools.cible, math.pi / 6):
+				return manoeuvre_devasion(tools)
+			
+			else: 
+				#compteur(self, id_team)
+				return finition(tools)
 		
 		def ambiguous():
-			if con.engagement():
+			#compteur(self, id_team)
+			if con.condition_engagement():
 				return strategie_engagement1v1(tools)
 				
 			else:
@@ -154,7 +157,7 @@ class Test(Strategy):
 		
 	def compute_strategy(self, state, id_team, id_player):
 		tools = MetaState(state, id_team, id_player)
-		return manoeuvre_devasion(tools)
+		return balle_au_pied(tools)
 		
 class Test2(Strategy):
 	def __init__(self):
@@ -162,4 +165,4 @@ class Test2(Strategy):
 		
 	def compute_strategy(self, state, id_team, id_player):
 		tools = MetaState(state, id_team, id_player)
-		return strategie_engagement1v1(tools)
+		return garder_distance(tools)

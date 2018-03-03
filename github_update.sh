@@ -10,7 +10,7 @@ git commit -m "$msg" && git push
 printf "\n\n"
 git status
 
-if [$save == "o"]; then
+if [ $save == "o" ]; then
 	bash auto_save.sh
 	echo "Dossier sauvegarde"
 else

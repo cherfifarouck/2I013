@@ -100,6 +100,12 @@ class MetaState(object):
 		return (self.cible - self.PB).angle
 	def get_position_from_state(self, state):
 		return self.player_state(state[0], state[1]).position
+	def closest_mur_lateral(self, pos):
+		if pos.y >= GH / 2:
+			return "haut"
+		else:
+			return "bas"
+		
 	def id_adverse(self):
 		return (self._id_team % 2)+1
 	def proximite_horizontale_but(self, distance):
