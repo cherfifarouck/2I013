@@ -20,7 +20,6 @@ class Gardien(Strategy):
 			return courir_vers(tools, position_par_defaut, 0.75) + shooter_goal(tools)
 		 
 		return gardien(tools)
-		
 
 from .sous_strat import *
 from .tools import *
@@ -73,6 +72,7 @@ class UnVUn(Strategy):
 			self.debug = 0
 			print("tag 0")
 		
+		print("debug")
 		##Parameters
 		rayon_zone_de_confiance = 4.3
 		##End parameters
@@ -157,7 +157,7 @@ class Test(Strategy):
 		
 	def compute_strategy(self, state, id_team, id_player):
 		tools = MetaState(state, id_team, id_player)
-		return balle_au_pied(tools)
+		return fonceur_strat(tools)
 		
 class Test2(Strategy):
 	def __init__(self):

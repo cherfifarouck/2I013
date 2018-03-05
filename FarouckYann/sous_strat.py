@@ -26,20 +26,22 @@ def degagement(tools):
 def degagement1v1(tools):
 	con = Conditions(tools)
 	if con.balle_dangereuse() and not con.voie_libre(tools.cible):
-		print("balle dangereuse et voie pas llibre")
 		ennemi = tools.get_position_adversaire1v1()
 		
 		if con.etre_colle_au_mur_lateral(ennemi):
+				print("jetais colled")
 				if tools.closest_mur_lateral(ennemi) == "haut":
 					endroit = Vector2D(
 					ennemi.x, 
 					ennemi.y / 2)
 				else:
+					
 					endroit = Vector2D(
 					ennemi.x,
 					(GH - ennemi.y) / 2)
 		
 		else:
+				print("jetais pas colled cest pire")
 				if tools.closest_mur_lateral(ennemi) == "haut":
 					endroit = Vector2D(
 					ennemi.x, 
@@ -56,7 +58,6 @@ def degagement1v1(tools):
 def balle_au_pied(tools, coord=[ZERO], plot=0):
 		precision_drible = 0.27
 		if coord == [ZERO]:
-			print("je rentre la ou je dois")
 			return dribler_vers(tools, precision_drible, tools.cible)
 			
 		coordonnees = Vector2D(coord[plot].x, coord[plot].y)
@@ -108,7 +109,7 @@ def attente(tools, position=ZERO):
 def random_strat(tools):
 	return random(tools)
 def garder_distance(tools, proportion=0.23):
-	return courir_vers(tools, tools.PB + (tools.cage - tools.PB) * proportion) 
+	return courir_vers(tools, tools.PB + (tools.cage - tools.PB) * proportion) + capter_balle(tools)
 def garder_distance_offensif(tools):
 	return garder_distance(tools) + mult_SA(0.28, tacler(tools))
 def marquage(tools):
@@ -163,7 +164,6 @@ def gardien(tools):
 	distanceAuCage = 10
 	
 	if tools.get_distance_between(tools.get_closest_ennemy_to_ball(), tools.PB) > tools.get_distance_to_ball() + 20 and tools.b_speed < 2:
-		print("je vais predire la balle")
 		if con.balle_dangereuse():
 			return fonceur_predict(tools) # degagement
 		else:
@@ -190,15 +190,12 @@ def decision_defensive(tools):
 	con = Conditions(tools)
 	
 	if tools.proximity_ball_goal_ami() == "loin":
-		print("loin")
 		return garder_distance(tools)
 	
 	elif tools.proximity_ball_goal_ami() == "medium":
-		print("med")
 		#on assume que le joueur ennemi va perdre la balle des quil tire
 		#if tools.pres_de_la_balle(tools.get_closest_ennemy_to_ball()) : return fonceur_predict(tools) ##bloquer cette action!
 		return garder_distance_offensif(tools)
 		
 	elif tools.proximity_ball_goal_ami() == "proche":
-		print("chepro")
 		return Gardien().compute_strategy(tools._state, tools._id_team, tools._id_player)

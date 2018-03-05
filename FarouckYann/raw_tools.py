@@ -44,7 +44,7 @@ def puissance_recommandee(distance_au_cage, angle):
 		return 0.5
 	if distance_au_cage > 50:
 		return 1
-	else: return 0.7
+	else: return 0.8
 
 
 def fonction_marquage_encodee(tools):
