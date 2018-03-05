@@ -40,8 +40,10 @@ class ParamSearch(object):
         self.res = dict()  # Dictionary of results
 
     def begin_round(self, team1, team2, state):
-        ball = Vector2D(GW/2, GH/2)
-        
+        ball = Vector2D.create_random(low=0, high=1)
+        ball.x *= GAME_WIDTH / 2
+        ball.x += GAME_WIDTH / 2
+        ball.y *= GAME_HEIGHT
 
         # Player and ball postion (random)
         self.simu.state.states[(1, 0)].position = ball.copy()  # Player position

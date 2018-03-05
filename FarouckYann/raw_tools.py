@@ -3,7 +3,7 @@ import itertools
 import sys
 import math
 from soccersimulator import SoccerAction
-from constantes import maxB, ZERO
+from .constantes import maxB, ZERO
 
 def get_angle_vectoriel(v1, v2): #non oriente
 		#if v1.x == 0 or v2.x == 0: 

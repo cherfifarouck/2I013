@@ -6,9 +6,9 @@ import os
 team1 = SoccerTeam(name="Real")
 team2 = SoccerTeam(name="Barca")
 team1.add("J1", UnVUn())
-team2.add("J2", UnVUn())
-#simu = Simulation(team1, team2)
-simu = Simulation(get_team(1), get_team(1))
+team2.add("J2", Test())
+simu = Simulation(team1, team2)
+#simu = Simulation(get_team(1), get_team(1))
 
 show_simu(simu)
 
