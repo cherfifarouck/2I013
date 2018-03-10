@@ -19,5 +19,5 @@ if __name__=="__main__":
             i,j = [int(x) for x in key.split(" ")]
             show_simu(tournoi.get_match(i,j))
         except:
-            print("Taper : i j pour le match n°i contre n°j, q pour quitter ")
+            print("Taper : i j pour le match n i contre n j, q pour quitter ")
             
