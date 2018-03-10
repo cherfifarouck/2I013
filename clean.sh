@@ -1,2 +1,1 @@
-rm *.pyc
-cd FarouckYann; rm *.pyc
+find . -type f -name '*.pyc' -delete

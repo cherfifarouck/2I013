@@ -1,6 +1,6 @@
 from __future__ import absolute_import
-from soccersimulator import SoccerTeam,Simulation,show_simu
-from FarouckYann import * #get_team
+from soccersimulator import SoccerTeam, Simulation, show_simu
+from FarouckYann import *
 import os
 
 team1 = SoccerTeam(name="Real")
@@ -13,7 +13,7 @@ simu = Simulation(team1, team2)
 show_simu(simu)
 
 """Appelle un script bash qui suprime les fichiers *.pyc"""
-os.system("bash clean.sh")
+os.system("bash ./clean.sh")
 
 ## rajouter des dribles
 # fix le degagement faire quil tire aussi vers la haut

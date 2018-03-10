@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from soccersimulator import SoccerTeam
-from .strat import Gardien, Defenseur, Milieu, Attaquant, UnVUn, Test, Test2
+from FarouckYann.strat import Gardien, Defenseur, Milieu, Attaquant, UnVUn, Test, Test2
+from FarouckYann.profAI.strategies import __init__ #DefenseurStrategy, FonceurStrategy, RandomStrategy, FonceurTestStrategy
 
 def get_team(nb_players):
 	myteam = SoccerTeam(name="Real")
@@ -24,5 +25,5 @@ def get_team(nb_players):
 def get_team_challenge(num):
 	myteam= SoccerTeam(name="Real")
 	if num == 1:
-		myteam.add("Joueur Chal"+str(num),Fonceur3())
+		myteam.add("Joueur Chal"+str(num),fonceur_strat())
 	return myteam
