@@ -6,12 +6,12 @@ import random
 import time
 
 RECOMMENDED_NUMBER_OF_LOOP = 8
-RECOMMENDED_NUMBER_OF_PARAMETERS = 16
+RECOMMENDED_NUMBER_OF_PARAMETERS = 14
 
 def average(l):
 	return sum(l)/len(l)
 
-def prufung(strategy, param_tag, params, show=False):
+def prufung(strategy, param_tag, params, show=True):
 	exp = ParamSearch(strategy, {param_tag: params})
 	exp.start(show=show)
 	
@@ -63,9 +63,7 @@ def mutate_parameters(param):
 	return param
 
 def verification_convergence(params, alpha):
-	maxi, mini = max(params), min(params)
-	if maxi - mini < alpha:
-		return True
+	return max(params) - min(params) < alpha
 
 def generation_loop(number):
 	params = linspace(0, maxB, RECOMMENDED_NUMBER_OF_PARAMETERS)

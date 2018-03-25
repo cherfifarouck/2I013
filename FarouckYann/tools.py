@@ -37,7 +37,7 @@ class MetaState(object):
 		return self.player_state(self._id_team, self._id_player).vitesse
 	@property
 	def b_speed(self):
-		return self.ball.vitesse
+		return self.ball.vitesse.norm
 	@property
 	def p_speed(self):
 		return self._state.player_state(self._id_team, self._id_player).vitesse
@@ -157,5 +157,5 @@ class MetaState(object):
 				return self.PB
 			
 			else:
-				point_interception = self.PB + coefficient_prediction * self.b_speed.normalize()
+				point_interception = self.PB + coefficient_prediction * self.ball.vitesse
 				return point_interception
