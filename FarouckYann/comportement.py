@@ -4,7 +4,7 @@ from soccersimulator import SoccerAction
 from .constantes import *
 from .conditions import Conditions
 from .raw_tools import *
-from tools import *
+from .tools import *
 from random import uniform
 
 def foncer_vers_balle(tools, speed=1):
